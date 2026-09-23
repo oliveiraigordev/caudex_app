@@ -8,6 +8,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Bell, Plus } from "lucide-react";
 import { PushNotificationsSetup } from "@/components/push-notifications-setup";
+import { timeOfDayGreeting } from "@/lib/greeting";
 
 export default async function HomePage() {
   const {
@@ -24,7 +25,7 @@ export default async function HomePage() {
     <PageShell className="space-y-10">
       <section className="space-y-3">
         <h1 className="font-display text-3xl font-semibold tracking-tight text-[#3d2c29] sm:text-4xl">
-          Bom dia no viveiro
+          {timeOfDayGreeting()}
         </h1>
         <p className="max-w-xl text-base leading-relaxed text-stone-600">
           {plants.length} mudas em acompanhamento em{" "}
@@ -92,7 +93,7 @@ export default async function HomePage() {
           </div>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-2 gap-2 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {plants.map((plant) => (
             <PlantCard key={plant.id} plant={plant} />
           ))}

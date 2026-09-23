@@ -75,7 +75,7 @@ export function PlantsCollection({
       </div>
 
       {view === "grid" ? (
-        <div className="grid min-w-0 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid min-w-0 grid-cols-2 gap-2 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {plants.map((plant) => (
             <PlantCard key={plant.id} plant={plant} />
           ))}

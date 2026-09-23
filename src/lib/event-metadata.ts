@@ -20,6 +20,7 @@ export function formatFertilizerMeta(metadata: string | null): string | null {
 }
 
 export const fertilizerTypeOptions = [
+  "NPK 14-14-14",
   "NPK 10-10-10 (diluído)",
   "NPK alto em K (floração)",
   "Foliar",

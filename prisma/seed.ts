@@ -13,20 +13,32 @@ async function main() {
     return;
   }
 
-  const user = await prisma.user.findUnique({ where: { email } });
+  let user = await prisma.user.findUnique({ where: { email } });
   if (!user) {
-    console.log(`Usuário ${email} não encontrado — faça login uma vez antes do seed.`);
-    return;
+    user = await prisma.user.create({
+      data: {
+        email,
+        name: process.env.SEED_USER_NAME ?? "Cultivador",
+        emailVerified: new Date(),
+      },
+    });
+    console.log(`Usuário criado para seed: ${email}`);
   }
 
-  const location = await prisma.cultivationLocation.create({
-    data: {
-      userId: user.id,
-      name: "Principal",
-      exposedToRain: true,
-      notes: "Local padrão em Bananal/SP",
-    },
+  const existingLocation = await prisma.cultivationLocation.findFirst({
+    where: { userId: user.id },
+    orderBy: { createdAt: "asc" },
   });
+  const location =
+    existingLocation ??
+    await prisma.cultivationLocation.create({
+      data: {
+        userId: user.id,
+        name: "Principal",
+        exposedToRain: true,
+        notes: "Local padrão em Bananal/SP",
+      },
+    });
 
   await prisma.userSettings.upsert({
     where: { userId: user.id },

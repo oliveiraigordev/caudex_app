@@ -1,10 +1,10 @@
 import { ImageResponse } from "next/og";
 import { adeniumFlowerOg } from "@/lib/adenium-flower-icon";
 
-export const size = { width: 512, height: 512 };
+export const size = { width: 180, height: 180 };
 export const contentType = "image/png";
 
-export default function Icon() {
+export default function AppleIcon() {
   return new ImageResponse(
     (
       <div
@@ -18,7 +18,7 @@ export default function Icon() {
             "radial-gradient(circle at 30% 25%, #f7ebe3 0%, #e8d4c8 35%, #c9a99a 100%)",
         }}
       >
-        {adeniumFlowerOg(340)}
+        {adeniumFlowerOg(120)}
       </div>
     ),
     { ...size },

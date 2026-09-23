@@ -5,8 +5,8 @@ import { createBulkEvents } from "@/app/actions";
 import { fertilizerTypeOptions } from "@/lib/event-metadata";
 import { PotFields } from "@/components/pot-fields";
 import { toDatetimeLocalInputValue } from "@/lib/utils";
+import { CollapsibleCard } from "@/components/collapsible-card";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Droplets, FlaskConical, Shovel } from "lucide-react";
 
 type PlantRow = {
@@ -103,14 +103,13 @@ export function BulkActionsPanel({ plants }: { plants: PlantRow[] }) {
         : `Registrar replantio em ${selected.size} planta(s)`;
 
   return (
-    <Card className="border-[#d4a088]/30">
-      <CardHeader>
-        <CardTitle>Ações em massa</CardTitle>
-        <p className="text-sm text-stone-600">
-          Selecione as mudas, data/hora (padrão: agora) e registre de uma vez.
-        </p>
-      </CardHeader>
-      <CardContent>
+    <CollapsibleCard
+      className="border-[#d4a088]/30"
+      title="Ações em massa"
+      description="Selecione as mudas, data/hora (padrão: agora) e registre de uma vez."
+      defaultOpenDesktop={false}
+      defaultOpenMobile={false}
+    >
         <form className="space-y-4" onSubmit={submit}>
           <div className="flex flex-wrap gap-2">
             <Button
@@ -254,7 +253,6 @@ export function BulkActionsPanel({ plants }: { plants: PlantRow[] }) {
             </p>
           )}
         </form>
-      </CardContent>
-    </Card>
+    </CollapsibleCard>
   );
 }

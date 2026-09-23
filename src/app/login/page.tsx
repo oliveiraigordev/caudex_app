@@ -3,7 +3,9 @@ import { PageShell } from "@/components/page-shell";
 import { Button } from "@/components/ui/button";
 import { Sprout } from "lucide-react";
 import { redirect } from "next/navigation";
+import { LoginCredentialsForm } from "@/components/login-credentials-form";
 import { signInWithApple, signInWithGoogle } from "./actions";
+import { loginEmailPasswordEnabled } from "@/lib/login-password";
 
 export default async function LoginPage({
   searchParams,
@@ -14,12 +16,14 @@ export default async function LoginPage({
   const { callbackUrl } = await searchParams;
   if (session?.user) redirect(callbackUrl || "/");
 
+  const hasCredentials = loginEmailPasswordEnabled();
   const hasGoogle =
     Boolean(process.env.AUTH_GOOGLE_ID) &&
     Boolean(process.env.AUTH_GOOGLE_SECRET);
   const hasApple =
     Boolean(process.env.AUTH_APPLE_ID) &&
     Boolean(process.env.AUTH_APPLE_SECRET);
+  const hasAnyProvider = hasCredentials || hasGoogle || hasApple;
 
   return (
     <PageShell narrow className="flex min-h-[70vh] items-center justify-center">
@@ -39,6 +43,12 @@ export default async function LoginPage({
         </div>
 
         <div className="space-y-3">
+          {hasCredentials ? (
+            <LoginCredentialsForm callbackUrl={callbackUrl} />
+          ) : null}
+          {hasCredentials && (hasGoogle || hasApple) ? (
+            <p className="text-center text-xs text-[var(--muted)]">ou</p>
+          ) : null}
           {hasGoogle ? (
             <form
               action={async () => {
@@ -63,11 +73,12 @@ export default async function LoginPage({
               </Button>
             </form>
           ) : null}
-          {!hasGoogle && !hasApple ? (
+          {!hasAnyProvider ? (
             <p className="rounded-xl border border-amber-200/80 bg-amber-50/80 px-4 py-3 text-sm text-amber-950 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-100">
-              Login ainda não configurado no servidor. Defina{" "}
-              <code className="text-xs">AUTH_SECRET</code> e provedores OAuth nas
-              variáveis da Vercel.
+              Login ainda não configurado. Na Vercel, defina{" "}
+              <code className="text-xs">AUTH_LOGIN_EMAIL</code> e{" "}
+              <code className="text-xs">AUTH_LOGIN_PASSWORD</code> (ou OAuth
+              Google/Apple).
             </p>
           ) : null}
         </div>

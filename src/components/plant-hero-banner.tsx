@@ -1,8 +1,9 @@
 "use client";
 
-import { useRef, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import Image from "next/image";
-import { uploadPlantPhoto } from "@/app/actions";
+import { useRouter } from "next/navigation";
+import { prepareCoverImage } from "@/lib/prepare-cover-image";
 import { Badge } from "@/components/ui/badge";
 import { Camera } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -25,18 +26,44 @@ export function PlantHeroBanner({
   originLabel: string;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
   const [pending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
 
   function onFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
+    const input = e.target;
+    const file = input.files?.[0];
     if (!file) return;
-    const fd = new FormData();
-    fd.set("plantId", plantId);
-    fd.set("file", file);
-    fd.set("caption", "Capa da muda");
+
+    setError(null);
     startTransition(async () => {
-      await uploadPlantPhoto(fd);
-      e.target.value = "";
+      try {
+        const prepared = await prepareCoverImage(file);
+        const fd = new FormData();
+        fd.set("file", prepared);
+        fd.set("caption", "Capa da muda");
+
+        const res = await fetch(`/api/plants/${plantId}/photo`, {
+          method: "POST",
+          body: fd,
+        });
+
+        const data = (await res.json().catch(() => ({}))) as {
+          error?: string;
+        };
+
+        if (!res.ok) {
+          throw new Error(data.error ?? "Não foi possível enviar a foto");
+        }
+
+        router.refresh();
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Erro ao enviar a foto da capa",
+        );
+      } finally {
+        input.value = "";
+      }
     });
   }
 
@@ -59,7 +86,6 @@ export function PlantHeroBanner({
           ref={inputRef}
           type="file"
           accept="image/*"
-          capture="environment"
           className="sr-only"
           aria-hidden
           onChange={onFileChange}
@@ -77,6 +103,15 @@ export function PlantHeroBanner({
         >
           <Camera className="h-5 w-5" strokeWidth={2} />
         </button>
+
+        {error ? (
+          <p
+            className="absolute left-3 right-14 top-3 z-10 rounded-lg bg-red-950/85 px-2.5 py-1.5 text-xs leading-snug text-red-50 shadow-lg"
+            role="alert"
+          >
+            {error}
+          </p>
+        ) : null}
 
         <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-8">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/70">

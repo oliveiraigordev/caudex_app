@@ -11,6 +11,7 @@ import { getAlertsBundle } from "@/lib/alerts-data";
 import { requireOwnedPlant } from "@/lib/plant-access";
 import { ensureDefaultLocation } from "@/lib/queries";
 import { requireUserId } from "@/lib/session";
+import { createPlantPhotoWithEvent } from "@/lib/plant-photo-upload";
 import { savePlantImage } from "@/lib/storage";
 
 function revalidateAlerts() {
@@ -598,31 +599,26 @@ export async function uploadPlantPhoto(formData: FormData) {
   if (!plantId || !file?.size) {
     throw new Error("Planta e arquivo são obrigatórios");
   }
-  await requireOwnedPlant(plantId, userId);
 
-  const photoPath = await savePlantImage(file);
-
-  const photo = await prisma.plantPhoto.create({
-    data: {
-      plantId,
-      eventId: eventId || null,
-      path: photoPath,
-      caption,
-    },
-  });
-
-  if (!eventId) {
-    await prisma.plantEvent.create({
+  if (eventId) {
+    await requireOwnedPlant(plantId, userId);
+    const photoPath = await savePlantImage(file);
+    const photo = await prisma.plantPhoto.create({
       data: {
         plantId,
-        type: "FOTO",
-        title: "Foto de acompanhamento",
-        notes: caption,
+        eventId,
+        path: photoPath,
+        caption,
       },
     });
+    revalidatePath(`/plantas/${plantId}`);
+    revalidateAlerts();
+    return photo.id;
   }
 
-  revalidatePath(`/plantas/${plantId}`);
+  const photo = await createPlantPhotoWithEvent(userId, plantId, file, {
+    caption,
+  });
   revalidateAlerts();
   return photo.id;
 }

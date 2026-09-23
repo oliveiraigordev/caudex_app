@@ -9,11 +9,18 @@ export async function savePlantImage(file: File): Promise<string> {
   const filename = `${randomUUID()}${ext}`;
 
   if (process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID) {
-    const blob = await put(`plants/${filename}`, file, {
-      access: "public",
-      addRandomSuffix: false,
-    });
-    return blob.url;
+    try {
+      const blob = await put(`plants/${filename}`, file, {
+        access: "public",
+        addRandomSuffix: false,
+      });
+      return blob.url;
+    } catch (err) {
+      console.error("[savePlantImage] Vercel Blob:", err);
+      throw new Error(
+        "Não foi possível salvar no armazenamento de imagens. Tente de novo em instantes.",
+      );
+    }
   }
 
   const bytes = Buffer.from(await file.arrayBuffer());

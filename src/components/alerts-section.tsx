@@ -39,7 +39,7 @@ function CollapsibleBucket({
   const [open, setOpen] = useState(defaultOpen);
 
   return (
-    <section className="rounded-xl border border-[var(--border)] bg-[var(--card-elevated)]/40">
+    <section className="min-w-0 max-w-full overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--card-elevated)]/40">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -126,7 +126,7 @@ export function AlertsSection({
     today.length === 0 && ongoing.length === 0 && completedAlerts.length === 0;
 
   return (
-    <div className="space-y-4">
+    <div className="min-w-0 w-full max-w-full space-y-4">
       <div className="flex flex-wrap items-center gap-2">
         {alerts.length > 0 && (
           <Button

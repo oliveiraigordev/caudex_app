@@ -60,12 +60,12 @@ export function WeatherPanel({
   ];
 
   return (
-    <div className="space-y-4">
-      <div className="rounded-2xl border border-[#d4a088]/30 bg-gradient-to-br from-[#fff8f3] to-white p-4">
+    <div className="min-w-0 space-y-4">
+      <div className="min-w-0 rounded-2xl border border-[#d4a088]/30 bg-gradient-to-br from-[#fff8f3] to-white p-4">
         <p className="text-xs font-semibold uppercase tracking-wider text-[#9b6b5c]">
           Hoje em {cityName}
         </p>
-        <p className="mt-2 font-display text-lg font-semibold leading-snug text-[#3d2c29]">
+        <p className="mt-2 break-words font-display text-lg font-semibold leading-snug text-[#3d2c29]">
           {verdict}
         </p>
       </div>
@@ -84,14 +84,14 @@ export function WeatherPanel({
                 <block.icon className="h-4 w-4" strokeWidth={1.75} />
               </div>
               <div className="min-w-0 space-y-1">
-                <p className="font-semibold text-stone-900">{block.title}</p>
+                <p className="break-words font-semibold text-stone-900">{block.title}</p>
                 {block.lines.map((line) => (
-                  <p key={line} className="text-sm leading-relaxed text-stone-600">
+                  <p key={line} className="break-words text-sm leading-relaxed text-stone-600">
                     {line}
                   </p>
                 ))}
                 {block.tip && (
-                  <p className="text-sm leading-relaxed text-[#7a5c4a]">
+                  <p className="break-words text-sm leading-relaxed text-[#7a5c4a]">
                     <span className="font-medium">Para suas mudas:</span>{" "}
                     {block.tip}
                   </p>

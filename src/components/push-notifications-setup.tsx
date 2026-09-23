@@ -131,7 +131,7 @@ export function PushNotificationsSetup({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "flex flex-col gap-3 rounded-xl border border-[var(--border)] bg-[var(--card)]/60 px-4 py-3 sm:flex-row sm:items-center sm:justify-between",
+        "flex min-w-0 max-w-full flex-col gap-3 rounded-xl border border-[var(--border)] bg-[var(--card)]/60 px-4 py-3 sm:flex-row sm:items-center sm:justify-between",
         className,
       )}
     >

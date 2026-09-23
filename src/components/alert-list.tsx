@@ -49,7 +49,7 @@ export function AlertItem({
   return (
     <div
       className={cn(
-        "flex gap-3 rounded-2xl border p-3.5 shadow-sm shadow-stone-200/40",
+        "flex min-w-0 max-w-full gap-3 rounded-2xl border p-3.5 shadow-sm shadow-stone-200/40",
         completed ? "border-stone-200 bg-stone-50/90 opacity-75" : s.box,
         compact && "p-3",
       )}
@@ -104,13 +104,13 @@ export function AlertItem({
         </div>
         <p
           className={cn(
-            "mt-1 text-sm font-semibold leading-snug text-stone-900",
+            "mt-1 break-words text-sm font-semibold leading-snug text-stone-900",
             completed && "line-through decoration-stone-400",
           )}
         >
           {alert.title}
         </p>
-        <p className="mt-0.5 text-sm leading-relaxed text-stone-600">
+        <p className="mt-0.5 break-words text-sm leading-relaxed text-stone-600">
           {alert.message}
         </p>
       </div>

@@ -29,7 +29,7 @@ export function PageShell({
       <SiteHeader />
       <main
         className={cn(
-          "mx-auto px-4 pb-16 pt-6 sm:px-6",
+          "mx-auto min-w-0 w-full max-w-full px-4 pb-16 pt-6 sm:px-6",
           narrow ? "max-w-lg" : "max-w-5xl",
           className,
         )}

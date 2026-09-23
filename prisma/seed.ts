@@ -1,5 +1,5 @@
 /**
- * Seed opcional — exige usuário já criado via login.
+ * Seed das 9 mudas (RD-001…009). Cria o usuário pelo e-mail se ainda não existir.
  * Uso: SEED_USER_EMAIL=seu@gmail.com npm run db:seed
  */
 import { PrismaClient, PlantPhase, PlantOrigin, PlantStatus } from "@prisma/client";

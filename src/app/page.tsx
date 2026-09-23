@@ -35,8 +35,8 @@ export default async function HomePage() {
 
       <PushNotificationsSetup />
 
-      <section className="grid gap-4 lg:grid-cols-5">
-        <Card className="lg:col-span-2">
+      <section className="grid w-full min-w-0 max-w-full grid-cols-1 gap-4 lg:grid-cols-5">
+        <Card className="min-w-0 lg:col-span-2">
           <CardHeader>
             <CardTitle>Como está o dia</CardTitle>
           </CardHeader>
@@ -49,9 +49,9 @@ export default async function HomePage() {
           </CardContent>
         </Card>
 
-        <Card className="lg:col-span-3">
-          <CardHeader className="flex-row items-center justify-between space-y-0">
-            <div>
+        <Card className="min-w-0 lg:col-span-3">
+          <CardHeader className="min-w-0 flex-row items-center justify-between space-y-0">
+            <div className="min-w-0">
               <CardTitle className="flex items-center gap-2">
                 <Bell className="h-4 w-4 text-[#c45c4a]" />
                 Lembretes

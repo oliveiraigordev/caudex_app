@@ -1,9 +1,12 @@
 # Deploy Caudexia na Vercel (`caudexia.vercel.app`)
 
-## 1. Banco Postgres
+O repositório GitHub pode continuar como `caudex_app` — **não precisa renomear o repo**. O que define a URL é o **projeto Vercel** (`caudexia` → `https://caudexia.vercel.app`).
 
-1. No [dashboard Vercel](https://vercel.com) → projeto **caudexia** → **Storage** → **Create Database** → **Postgres** (ou conecte [Neon](https://neon.tech)).
-2. Copie `POSTGRES_URL` / `DATABASE_URL` para as variáveis do projeto.
+## 1. Banco Postgres (Neon no marketplace)
+
+1. Aceite os termos: [Integração Neon no time hci8](https://vercel.com/hci8/~/integrations/accept-terms/neon?source=cli).
+2. No terminal: `npx vercel integration add neon --scope hci8` e crie/ligue o banco ao projeto **caudexia** (variável `DATABASE_URL` automática).
+3. Ou rode `./scripts/vercel-finish-setup.sh` após o passo 1.
 
 O build roda `prisma migrate deploy` automaticamente.
 

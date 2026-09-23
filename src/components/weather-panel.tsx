@@ -61,11 +61,13 @@ export function WeatherPanel({
 
   return (
     <div className="min-w-0 space-y-4">
-      <div className="min-w-0 rounded-2xl border border-[#d4a088]/30 bg-gradient-to-br from-[#fff8f3] to-white p-4">
-        <p className="text-xs font-semibold uppercase tracking-wider text-[#9b6b5c]">
+      <div
+        className="min-w-0 rounded-2xl border border-[#d4a088]/25 bg-[color-mix(in_srgb,var(--card-elevated)_90%,var(--accent-muted)_10%)] p-4 dark:border-[#d4a088]/20 dark:bg-[color-mix(in_srgb,var(--card-elevated)_85%,var(--accent)_12%)]"
+      >
+        <p className="text-xs font-semibold uppercase tracking-wider text-[var(--accent-muted)]">
           Hoje em {cityName}
         </p>
-        <p className="mt-2 break-words font-display text-lg font-semibold leading-snug text-[#3d2c29]">
+        <p className="mt-2 break-words font-display text-lg font-semibold leading-snug text-[var(--foreground)]">
           {verdict}
         </p>
       </div>
@@ -74,24 +76,26 @@ export function WeatherPanel({
         {blocks.map((block) => (
           <li
             key={block.title}
-            className="rounded-xl border border-stone-100 bg-white/70 p-3.5"
+            className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-3.5"
           >
             <div className="flex gap-3">
               <div
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#f3e8df] text-[#9b4d3a]"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[color-mix(in_srgb,var(--accent-muted)_22%,var(--card-elevated)_78%)] text-[var(--accent)]"
                 aria-hidden
               >
                 <block.icon className="h-4 w-4" strokeWidth={1.75} />
               </div>
               <div className="min-w-0 space-y-1">
-                <p className="break-words font-semibold text-stone-900">{block.title}</p>
+                <p className="break-words font-semibold text-[var(--foreground)]">
+                  {block.title}
+                </p>
                 {block.lines.map((line) => (
                   <p key={line} className="break-words text-sm leading-relaxed text-stone-600">
                     {line}
                   </p>
                 ))}
                 {block.tip && (
-                  <p className="break-words text-sm leading-relaxed text-[#7a5c4a]">
+                  <p className="break-words text-sm leading-relaxed text-[var(--accent-muted)]">
                     <span className="font-medium">Para suas mudas:</span>{" "}
                     {block.tip}
                   </p>
@@ -102,8 +106,10 @@ export function WeatherPanel({
         ))}
       </ul>
 
-      <details className="rounded-xl bg-stone-50/80 px-3 py-2 text-xs text-stone-500">
-        <summary className="cursor-pointer font-medium text-stone-600">
+      <details
+        className="rounded-xl bg-[color-mix(in_srgb,var(--card)_88%,var(--foreground)_4%)] px-3 py-2 text-xs text-[var(--muted)]"
+      >
+        <summary className="cursor-pointer font-medium text-[var(--muted)]">
           Números técnicos da previsão
         </summary>
         <ul className="mt-2 space-y-1 pl-1">

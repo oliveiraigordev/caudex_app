@@ -10,7 +10,10 @@ export default auth((req) => {
     pathname.startsWith("/api/cron/") ||
     pathname.startsWith("/login") ||
     pathname.startsWith("/_next") ||
-    pathname === "/favicon.ico";
+    pathname === "/favicon.ico" ||
+    pathname === "/icon" ||
+    pathname === "/apple-icon" ||
+    pathname === "/manifest.webmanifest";
 
   if (!req.auth && !isAuthRoute) {
     const login = new URL("/login", req.nextUrl.origin);

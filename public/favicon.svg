@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Caudexia">
+  <defs>
+    <radialGradient id="bg" cx="30%" cy="25%" r="75%">
+      <stop offset="0%" stop-color="#f7ebe3"/>
+      <stop offset="100%" stop-color="#c9a99a"/>
+    </radialGradient>
+    <linearGradient id="petal" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f0a99e"/>
+      <stop offset="55%" stop-color="#e07062"/>
+      <stop offset="100%" stop-color="#b84a3f"/>
+    </linearGradient>
+    <radialGradient id="throat" cx="40%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#f7e08a"/>
+      <stop offset="55%" stop-color="#c45c4a"/>
+      <stop offset="100%" stop-color="#7a3329"/>
+    </radialGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#bg)"/>
+  <g transform="translate(32 34)">
+    <ellipse cx="0" cy="-14" rx="11" ry="17" fill="url(#petal)" transform="rotate(0)"/>
+    <ellipse cx="0" cy="-14" rx="11" ry="17" fill="url(#petal)" transform="rotate(72)"/>
+    <ellipse cx="0" cy="-14" rx="11" ry="17" fill="url(#petal)" transform="rotate(144)"/>
+    <ellipse cx="0" cy="-14" rx="11" ry="17" fill="url(#petal)" transform="rotate(216)"/>
+    <ellipse cx="0" cy="-14" rx="11" ry="17" fill="url(#petal)" transform="rotate(288)"/>
+    <circle r="9" fill="url(#throat)"/>
+    <circle r="3.2" fill="#5c2a22"/>
+  </g>
+</svg>

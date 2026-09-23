@@ -24,6 +24,13 @@ export const metadata: Metadata = {
   title: "Caudexia — rosa do deserto",
   description:
     "Controle de cultivo de Adenium: rega, adubação, fotos, clima e alertas em Bananal/SP.",
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/icon", type: "image/png", sizes: "512x512" },
+    ],
+    apple: [{ url: "/apple-icon", type: "image/png", sizes: "180x180" }],
+  },
 };
 
 export default function RootLayout({

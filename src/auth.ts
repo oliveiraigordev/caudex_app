@@ -3,6 +3,7 @@ import Google from "next-auth/providers/google";
 import Apple from "next-auth/providers/apple";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/db";
+import { authConfig } from "@/auth.config";
 import type { Provider } from "next-auth/providers";
 
 const providers: Provider[] = [];
@@ -26,16 +27,12 @@ if (process.env.AUTH_APPLE_ID && process.env.AUTH_APPLE_SECRET) {
 }
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  secret: process.env.AUTH_SECRET,
+  ...authConfig,
   adapter: PrismaAdapter(prisma),
   providers,
-  pages: {
-    signIn: "/login",
-  },
   session: {
     strategy: "database",
   },
-  trustHost: true,
   callbacks: {
     session({ session, user }) {
       if (session.user) {

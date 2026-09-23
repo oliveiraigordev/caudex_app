@@ -98,58 +98,68 @@ function PlantListCards({
   className?: string;
 }) {
   return (
-    <ul className={cn("min-w-0 space-y-2", className)}>
+    <ul className={cn("min-w-0 space-y-1.5", className)}>
       {rows.map((row) => (
         <li key={row.id}>
           <Link
             href={`/plantas/${row.id}`}
-            className="block rounded-2xl border border-[var(--border)] bg-[var(--card)] p-4 shadow-sm transition hover:border-[#d4a088]/40"
+            className="block rounded-xl border border-[var(--border)] bg-[var(--card)] px-2.5 py-2 shadow-sm transition active:bg-[var(--card-elevated)]/50 hover:border-[#d4a088]/40"
           >
-            <div className="flex items-start justify-between gap-2">
-              <div className="min-w-0">
-                <p className="font-mono text-sm font-semibold text-[#c45c4a]">
+            <div className="flex items-center justify-between gap-1.5">
+              <p className="min-w-0 truncate text-xs leading-tight">
+                <span className="font-mono font-semibold text-[#c45c4a]">
                   {row.code}
-                </p>
-                <p className="truncate text-sm text-[var(--foreground)]">
-                  {row.nickname ?? "Sem apelido"}
-                </p>
-              </div>
-              <span className="shrink-0 rounded-full bg-[var(--card-elevated)] px-2 py-0.5 text-[10px] font-medium text-[var(--muted)]">
+                </span>
+                {row.nickname ? (
+                  <span className="font-normal text-[var(--foreground)]">
+                    {" "}
+                    · {row.nickname}
+                  </span>
+                ) : null}
+              </p>
+              <span
+                className="max-w-[5.5rem] shrink-0 truncate rounded-md bg-[var(--card-elevated)] px-1.5 py-px text-[9px] font-medium leading-tight text-[var(--muted)]"
+                title={phaseLabels[row.phase]}
+              >
                 {phaseLabels[row.phase]}
               </span>
             </div>
-            <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs text-[var(--muted)]">
-              <div>
-                <dt className="text-[10px] uppercase tracking-wide opacity-80">
+            <dl className="mt-1.5 grid grid-cols-3 gap-x-1.5 gap-y-1 text-[10px] leading-tight text-[var(--muted)]">
+              <div className="min-w-0">
+                <dt className="text-[9px] font-medium uppercase tracking-wide opacity-75">
                   Rega
                 </dt>
-                <dd>
-                  {row.lastWaterAt
-                    ? `${row.waterDays}d · ${formatDate(row.lastWaterAt)}`
-                    : "—"}
-                </dd>
-              </div>
-              <div>
-                <dt className="text-[10px] uppercase tracking-wide opacity-80">
-                  Adubo
-                </dt>
-                <dd>
-                  {row.lastFertAt
-                    ? `${row.fertDays}d · ${formatDate(row.lastFertAt)}`
-                    : "—"}
+                <dd className="truncate tabular-nums">
+                  {row.waterDays != null ? `${row.waterDays}d` : "—"}
                 </dd>
               </div>
               <div className="min-w-0">
-                <dt className="text-[10px] uppercase tracking-wide opacity-80">
+                <dt className="text-[9px] font-medium uppercase tracking-wide opacity-75">
+                  Adubo
+                </dt>
+                <dd className="truncate tabular-nums">
+                  {row.fertDays != null ? `${row.fertDays}d` : "—"}
+                </dd>
+              </div>
+              <div className="min-w-0">
+                <dt className="text-[9px] font-medium uppercase tracking-wide opacity-75">
+                  Altura
+                </dt>
+                <dd className="truncate tabular-nums">
+                  {row.heightCm ? `${row.heightCm} cm` : "—"}
+                </dd>
+              </div>
+              <div className="min-w-0">
+                <dt className="text-[9px] font-medium uppercase tracking-wide opacity-75">
                   Local
                 </dt>
                 <dd className="truncate">{row.locationName}</dd>
               </div>
-              <div>
-                <dt className="text-[10px] uppercase tracking-wide opacity-80">
-                  Altura
+              <div className="min-w-0 col-span-2">
+                <dt className="text-[9px] font-medium uppercase tracking-wide opacity-75">
+                  Vaso
                 </dt>
-                <dd>{row.heightCm ? `${row.heightCm} cm` : "—"}</dd>
+                <dd className="truncate">{row.potLabel || "—"}</dd>
               </div>
             </dl>
           </Link>

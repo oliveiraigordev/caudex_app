@@ -1,31 +1,23 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { createPlant } from "@/app/actions";
-import { getPlantFormOptions } from "@/lib/queries";
-import { requireUserId } from "@/lib/session";
+import { createPlantsFromForm } from "@/app/actions";
+import { NewPlantForm } from "@/components/new-plant-form";
 import { PageShell } from "@/components/page-shell";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ensureDefaultLocation, getNewPlantPageData } from "@/lib/queries";
+import { requireUserId } from "@/lib/session";
 import { ArrowLeft } from "lucide-react";
-
-const inputClass =
-  "mt-1.5 w-full rounded-xl border border-stone-200 bg-white/90 px-3 py-2.5 text-sm outline-none transition focus:border-[#d4a088] focus:ring-2 focus:ring-[#c45c4a]/15";
 
 export default async function NovaPlantaPage() {
   const userId = await requireUserId();
-  const { locations } = await getPlantFormOptions(userId, "__new__");
+  await ensureDefaultLocation(userId);
+  const data = await getNewPlantPageData(userId);
 
   async function handleCreate(formData: FormData) {
     "use server";
-    const code = String(formData.get("code") ?? "").trim();
-    if (!code) return;
-    const id = await createPlant({
-      code,
-      nickname: String(formData.get("nickname") ?? "").trim() || undefined,
-      heightCm: Number(formData.get("heightCm")) || undefined,
-      locationId: String(formData.get("locationId") ?? "") || undefined,
-    });
-    redirect(`/plantas/${id}`);
+    const ids = await createPlantsFromForm(formData);
+    if (ids.length === 1) redirect(`/plantas/${ids[0]}`);
+    redirect("/plantas");
   }
 
   return (
@@ -40,48 +32,19 @@ export default async function NovaPlantaPage() {
       <Card>
         <CardHeader>
           <CardTitle>Nova planta</CardTitle>
+          <p className="text-sm text-stone-600">
+            Escolha o tipo, a quantidade e os dados iniciais. Os códigos são
+            gerados automaticamente.
+          </p>
         </CardHeader>
         <CardContent>
-          <form action={handleCreate} className="space-y-4">
-            <label className="block text-sm font-medium text-stone-700">
-              Código
-              <input
-                name="code"
-                required
-                placeholder="RD-010"
-                className={inputClass}
-              />
-            </label>
-            <label className="block text-sm font-medium text-stone-700">
-              Apelido
-              <input name="nickname" className={inputClass} />
-            </label>
-            <label className="block text-sm font-medium text-stone-700">
-              Altura (cm)
-              <input
-                name="heightCm"
-                type="number"
-                step="0.1"
-                className={inputClass}
-              />
-            </label>
-            <label className="block text-sm font-medium text-stone-700">
-              Local
-              <select name="locationId" className={inputClass}>
-                {locations.map((l) => (
-                  <option key={l.id} value={l.id}>
-                    {l.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <div className="flex gap-2 pt-2">
-              <Button type="submit">Salvar</Button>
-              <Button asChild variant="outline">
-                <Link href="/plantas">Cancelar</Link>
-              </Button>
-            </div>
-          </form>
+          <NewPlantForm
+            locations={data.locations}
+            plants={data.plants}
+            pollinations={data.pollinations}
+            existingCodes={data.existingCodes}
+            createAction={handleCreate}
+          />
         </CardContent>
       </Card>
     </PageShell>

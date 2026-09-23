@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { getAlertsBundle } from "@/lib/alerts-data";
 import { sortAlerts } from "@/lib/alert-labels";
+import { parsePollinationMeta } from "@/lib/pollination-metadata";
 import { requireUserId } from "@/lib/session";
 
 export async function getSettings(userId: string) {
@@ -40,6 +41,54 @@ export async function getPlantNeighbors(userId: string, currentId: string) {
     next: index < plants.length - 1 ? plants[index + 1] : null,
     position: index + 1,
     total: plants.length,
+  };
+}
+
+export async function getNewPlantPageData(userId: string) {
+  const [locations, plants, pollinationEvents, allCodes] = await Promise.all([
+    prisma.cultivationLocation.findMany({
+      where: { userId },
+      orderBy: { name: "asc" },
+    }),
+    prisma.plant.findMany({
+      where: { userId },
+      orderBy: { code: "asc" },
+      select: { id: true, code: true, nickname: true },
+    }),
+    prisma.plantEvent.findMany({
+      where: { type: "POLINIZACAO", plant: { userId } },
+      orderBy: { occurredAt: "desc" },
+      take: 80,
+      include: {
+        plant: { select: { id: true, code: true, nickname: true } },
+      },
+    }),
+    prisma.plant.findMany({
+      where: { userId },
+      select: { code: true },
+    }),
+  ]);
+
+  const pollinations = pollinationEvents.map((ev) => {
+    const meta = parsePollinationMeta(ev.metadata);
+    return {
+      id: ev.id,
+      occurredAt: ev.occurredAt.toISOString(),
+      title: ev.title ?? "Polinização",
+      motherId: ev.plant.id,
+      motherCode: ev.plant.code,
+      motherNickname: ev.plant.nickname,
+      malePlantId: meta?.malePlantId ?? null,
+      malePlantCode: meta?.malePlantCode ?? null,
+      maleExternal: meta?.maleExternal ?? null,
+    };
+  });
+
+  return {
+    locations,
+    plants,
+    pollinations,
+    existingCodes: allCodes.map((p) => p.code),
   };
 }
 

@@ -19,9 +19,21 @@ function revalidateAlerts() {
 }
 import type { EventType, PlantOrigin, PlantPhase, PlantStatus } from "@prisma/client";
 import { applyAutoPhase } from "@/lib/plant-phase-auto";
+import { nextPlantCodes } from "@/lib/plant-code";
+import { parsePollinationMeta } from "@/lib/pollination-metadata";
 import { resolvePotFromPreset } from "@/lib/pot-sizes";
 import { repotEventTitle } from "@/lib/repot-metadata";
 import type { PollinationResultOutcome } from "@/lib/pollination-metadata";
+
+const CREATE_ORIGINS = ["SEMENTE", "MUDA", "COMPRA"] as const;
+type CreateOrigin = (typeof CREATE_ORIGINS)[number];
+
+function parseCreateOrigin(raw: string): CreateOrigin {
+  if ((CREATE_ORIGINS as readonly string[]).includes(raw)) {
+    return raw as CreateOrigin;
+  }
+  throw new Error("Tipo de criação inválido");
+}
 export async function updateEventOccurredAt(input: {
   eventId: string;
   plantId: string;
@@ -319,15 +331,18 @@ export async function updatePlantFromForm(plantId: string, formData: FormData) {
   });
 }
 
-export async function createPlant(input: {
-  code: string;
-  nickname?: string;
-  origin?: PlantOrigin;
-  heightCm?: number;
-  locationId?: string;
-}) {
+export async function createPlantsFromForm(formData: FormData): Promise<string[]> {
   const userId = await requireUserId();
-  let locationId = input.locationId;
+  const creationType = parseCreateOrigin(String(formData.get("creationType") ?? ""));
+  const quantityRaw = Number(formData.get("quantity"));
+  const quantity = Math.min(50, Math.max(1, Number.isFinite(quantityRaw) ? quantityRaw : 1));
+  const nickname = String(formData.get("nickname") ?? "").trim();
+  const locationIdRaw = String(formData.get("locationId") ?? "").trim();
+  const arrivedAtRaw = String(formData.get("arrivedAt") ?? "").trim();
+  const arrivedAt = arrivedAtRaw ? new Date(arrivedAtRaw) : new Date();
+  if (Number.isNaN(arrivedAt.getTime())) throw new Error("Data inválida");
+
+  let locationId = locationIdRaw;
   if (locationId) {
     const loc = await prisma.cultivationLocation.findFirst({
       where: { id: locationId, userId },
@@ -337,30 +352,133 @@ export async function createPlant(input: {
     locationId = (await ensureDefaultLocation(userId)).id;
   }
 
-  const plant = await prisma.plant.create({
-    data: {
-      userId,
-      code: input.code,
-      nickname: input.nickname,
-      origin: input.origin ?? "SEMENTE",
-      heightCm: input.heightCm,
-      locationId,
-      phase: "MUDA_SEMENTE",
-      status: "SAUDAVEL",
-    },
-  });
+  const potPreset = String(formData.get("potPreset") ?? "").trim();
+  const potDiameterRaw = String(formData.get("potDiameterCm") ?? "").trim();
+  const potVolumeRaw = String(formData.get("potVolumeLiters") ?? "").trim();
+  const potLabel = String(formData.get("potLabel") ?? "").trim();
+  const potResolved = potPreset
+    ? resolvePotFromPreset(
+        potPreset,
+        potDiameterRaw ? Number(potDiameterRaw) : null,
+        potVolumeRaw ? Number(potVolumeRaw) : null,
+        potLabel || null,
+      )
+    : null;
 
-  await prisma.plantEvent.create({
-    data: {
-      plantId: plant.id,
-      type: "CHEGADA",
-      title: "Planta cadastrada",
-    },
+  let origin: PlantOrigin = creationType;
+  let phase: PlantPhase = "MUDA_SEMENTE";
+  let heightCm: number | null = null;
+  let parentMaleId: string | null = null;
+  let parentFemaleId: string | null = null;
+  let chegadaTitle = "Planta cadastrada";
+  let extraEvent: { type: EventType; title: string; metadata?: string } | null =
+    null;
+
+  if (creationType === "SEMENTE") {
+    const pollinationEventId = String(formData.get("pollinationEventId") ?? "").trim();
+    if (!pollinationEventId) throw new Error("Selecione a polinização");
+    const pollEv = await prisma.plantEvent.findFirst({
+      where: { id: pollinationEventId, type: "POLINIZACAO", plant: { userId } },
+      include: { plant: { select: { id: true, code: true } } },
+    });
+    if (!pollEv) throw new Error("Polinização não encontrada");
+    const meta = parsePollinationMeta(pollEv.metadata);
+    parentFemaleId = pollEv.plant.id;
+    if (meta?.malePlantId) {
+      const male = await prisma.plant.findFirst({
+        where: { id: meta.malePlantId, userId },
+        select: { id: true },
+      });
+      parentMaleId = male?.id ?? null;
+    }
+    phase = "MUDA_SEMENTE";
+    chegadaTitle = `Plantio (semente) · mãe ${pollEv.plant.code}`;
+    extraEvent = {
+      type: "SEMENTES",
+      title: "Sementes plantadas",
+      metadata: JSON.stringify({ pollinationEventId: pollEv.id }),
+    };
+  } else if (creationType === "MUDA") {
+    const donorId = String(formData.get("donorPlantId") ?? "").trim();
+    if (!donorId) throw new Error("Selecione a planta doadora");
+    const donor = await prisma.plant.findFirst({
+      where: { id: donorId, userId },
+      select: { id: true, code: true },
+    });
+    if (!donor) throw new Error("Doadora inválida");
+    parentFemaleId = donor.id;
+    phase = "JOVEM";
+    chegadaTitle = `Muda da ${donor.code}`;
+  } else {
+    const phaseRaw = String(formData.get("phase") ?? "") as PlantPhase;
+    phase = phaseRaw || "JOVEM";
+    const heightRaw = String(formData.get("heightCm") ?? "").trim();
+    heightCm = heightRaw ? Number(heightRaw) : null;
+    chegadaTitle = "Compra registrada";
+  }
+
+  const codes = await prisma.$transaction(async (tx) => {
+    const existing = await tx.plant.findMany({
+      where: { userId },
+      select: { code: true },
+    });
+    const newCodes = nextPlantCodes(existing.map((p) => p.code), quantity);
+    const ids: string[] = [];
+
+    for (let i = 0; i < newCodes.length; i++) {
+      const code = newCodes[i];
+      const plantNickname =
+        nickname && quantity > 1 ? `${nickname} ${i + 1}` : nickname || null;
+
+      const plant = await tx.plant.create({
+        data: {
+          userId,
+          code,
+          nickname: plantNickname,
+          origin,
+          phase,
+          status: "SAUDAVEL",
+          heightCm,
+          locationId,
+          arrivedAt,
+          parentMaleId,
+          parentFemaleId,
+          ...(potResolved ?? {}),
+        },
+      });
+      ids.push(plant.id);
+
+      await tx.plantEvent.create({
+        data: {
+          plantId: plant.id,
+          type: "CHEGADA",
+          occurredAt: arrivedAt,
+          title: chegadaTitle,
+        },
+      });
+
+      if (extraEvent) {
+        await tx.plantEvent.create({
+          data: {
+            plantId: plant.id,
+            type: extraEvent.type,
+            occurredAt: arrivedAt,
+            title: extraEvent.title,
+            metadata: extraEvent.metadata,
+          },
+        });
+      }
+    }
+
+    return ids;
   });
 
   revalidatePath("/");
   revalidatePath("/plantas");
-  return plant.id;
+  for (const id of codes) {
+    revalidatePath(`/plantas/${id}`);
+  }
+  return codes;
 }
 
 export async function createPollinationEvent(formData: FormData) {

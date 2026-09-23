@@ -108,16 +108,8 @@ export default async function PlantDetailPage({
         </div>
       </div>
 
-      <div className="flex flex-col gap-4 lg:grid lg:grid-cols-3 lg:gap-6">
-        <div className="order-1 lg:order-none lg:col-span-2 lg:col-start-2 lg:row-start-1">
-          <PlantDetailAlerts
-            alerts={plantAlerts}
-            dismissedCount={dismissedCount}
-            completedAlerts={plantCompletedAlerts}
-          />
-        </div>
-
-        <div className="order-2 flex flex-col gap-4 lg:order-none lg:col-span-1 lg:col-start-1 lg:row-start-1">
+      <div className="flex flex-col gap-4 lg:grid lg:grid-cols-[minmax(260px,320px)_minmax(0,1fr)] lg:items-start lg:gap-6">
+        <aside className="flex min-w-0 flex-col gap-4 lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto">
           <PlantEditForm
             plant={plant}
             locations={formOptions.locations}
@@ -139,11 +131,15 @@ export default async function PlantDetailPage({
                 title: e.title,
               }))}
           />
-        </div>
+        </aside>
 
-        <div className="order-3 flex flex-col gap-4 lg:order-none lg:col-span-2 lg:col-start-2 lg:row-start-2">
+        <div className="flex min-w-0 flex-col gap-4">
+          <PlantDetailAlerts
+            alerts={plantAlerts}
+            dismissedCount={dismissedCount}
+            completedAlerts={plantCompletedAlerts}
+          />
           <PlantDetailGallery photos={plant.photos} plantCode={plant.code} />
-
           <PlantDetailTimeline events={plant.events} plantId={plant.id} />
         </div>
       </div>

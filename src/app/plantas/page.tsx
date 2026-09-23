@@ -2,7 +2,8 @@ import Link from "next/link";
 import { getPlantsWithEvents } from "@/lib/queries";
 import { requireUserId } from "@/lib/session";
 import { PageShell } from "@/components/page-shell";
-import { PlantCard } from "@/components/plant-card";
+import { PlantsCollection } from "@/components/plants-collection";
+import { plantDayToDaySummary } from "@/lib/plant-day-to-day";
 import { BulkActionsPanel } from "@/components/bulk-actions-panel";
 import { AutomationHint } from "@/components/automation-hint";
 import { Button } from "@/components/ui/button";
@@ -40,11 +41,10 @@ export default async function PlantasPage() {
         }))}
       />
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {plants.map((plant) => (
-          <PlantCard key={plant.id} plant={plant} />
-        ))}
-      </div>
+      <PlantsCollection
+        plants={plants}
+        rows={plants.map((p) => plantDayToDaySummary(p))}
+      />
     </PageShell>
   );
 }

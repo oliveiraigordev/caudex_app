@@ -1,0 +1,133 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum PlantOrigin {
+  SEMENTE
+  MUDA
+  ENXERTO
+  COMPRA
+  CRUZAMENTO_PROPRIO
+}
+
+enum PlantPhase {
+  MUDA_SEMENTE
+  JOVEM
+  ADULTA
+  RECUPERACAO
+  DORMENCIA
+}
+
+enum PlantStatus {
+  SAUDAVEL
+  STRESS
+  DOENTE
+  RECUPERACAO
+  DORMENCIA
+}
+
+enum EventType {
+  CHEGADA
+  REGA
+  ADUBACAO
+  REPLANTIO
+  PODA
+  MUDANCA_SOL
+  FLORACAO
+  DOENCA
+  PRAGA
+  TRATAMENTO
+  FOTO
+  CRUZAMENTO
+  SEMENTES
+  POLINIZACAO
+  RESULTADO_POLINIZACAO
+  NOTA
+}
+
+model CultivationLocation {
+  id            String   @id @default(cuid())
+  name          String
+  exposedToRain Boolean  @default(true)
+  notes         String?
+  plants        Plant[]
+  createdAt     DateTime @default(now())
+}
+
+model Plant {
+  id                 String              @id @default(cuid())
+  code               String              @unique
+  nickname           String?
+  origin             PlantOrigin         @default(SEMENTE)
+  phase              PlantPhase          @default(MUDA_SEMENTE)
+  status             PlantStatus         @default(SAUDAVEL)
+  heightCm           Float?
+  arrivedAt          DateTime            @default(now())
+  substrateNotes     String?
+  potPreset          String?
+  potDiameterCm      Float?
+  potVolumeLiters    Float?
+  potLabel           String?
+  sunExposurePercent Int                 @default(80)
+  locationId         String?
+  location           CultivationLocation? @relation(fields: [locationId], references: [id])
+  parentMaleId       String?
+  parentFemaleId     String?
+  parentMale         Plant?              @relation("ParentMale", fields: [parentMaleId], references: [id])
+  parentFemale       Plant?              @relation("ParentFemale", fields: [parentFemaleId], references: [id])
+  childrenAsMale     Plant[]             @relation("ParentMale")
+  childrenAsFemale   Plant[]             @relation("ParentFemale")
+  events             PlantEvent[]
+  photos             PlantPhoto[]
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+}
+
+model PlantEvent {
+  id         String       @id @default(cuid())
+  plantId    String
+  plant      Plant        @relation(fields: [plantId], references: [id], onDelete: Cascade)
+  type       EventType
+  occurredAt DateTime     @default(now())
+  title      String?
+  notes      String?
+  metadata   String?
+  photos     PlantPhoto[]
+  createdAt  DateTime     @default(now())
+}
+
+model PlantPhoto {
+  id        String      @id @default(cuid())
+  plantId   String
+  plant     Plant       @relation(fields: [plantId], references: [id], onDelete: Cascade)
+  eventId   String?
+  event     PlantEvent? @relation(fields: [eventId], references: [id], onDelete: SetNull)
+  path      String
+  caption   String?
+  takenAt   DateTime    @default(now())
+  createdAt DateTime    @default(now())
+}
+
+model UserSettings {
+  id                   String  @id @default("default")
+  locationLat          Float   @default(-22.68)
+  locationLon          Float   @default(-44.32)
+  cityName             String  @default("Bananal, SP")
+  waterDaysSeedling    Int     @default(4)
+  waterDaysAdult       Int     @default(10)
+  fertDaysSeedling     Int     @default(14)
+  fertDaysAdult        Int     @default(30)
+  notificationsEnabled Boolean @default(true)
+}
+
+/** Lembretes dispensados pelo usuário (chave = id do alerta gerado). */
+model AlertDismissal {
+  id          String   @id @default(cuid())
+  alertKey    String   @unique
+  dismissedAt DateTime @default(now())
+}

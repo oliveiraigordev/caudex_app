@@ -1,8 +1,40 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f6f1eb;
+  --foreground: #3d2c29;
+  --card: #fffcf8;
+  --card-elevated: #ffffff;
+  --accent: #c45c4a;
+  --accent-muted: #b8734a;
+  --border: rgba(61, 44, 41, 0.1);
+  --muted: #78716c;
+  --header-bg: rgba(246, 241, 235, 0.85);
+  --glow-warm: rgba(190, 120, 100, 0.18);
+  --glow-gold: rgba(214, 168, 100, 0.12);
+  --input-bg: rgba(255, 255, 255, 0.9);
+  --nav-pill: rgba(255, 255, 255, 0.6);
+  --nav-active: #3d2c29;
+}
+
+.dark {
+  color-scheme: dark;
+  --background: #1a1412;
+  --foreground: #ede5dc;
+  --card: #2a2320;
+  --card-elevated: #332b27;
+  --accent: #e07866;
+  --accent-muted: #d4a574;
+  --border: rgba(237, 229, 220, 0.12);
+  --muted: #b8aaa2;
+  --header-bg: rgba(26, 20, 18, 0.88);
+  --glow-warm: rgba(196, 92, 74, 0.15);
+  --glow-gold: rgba(212, 160, 136, 0.1);
+  --input-bg: rgba(42, 35, 32, 0.95);
+  --nav-pill: rgba(42, 35, 32, 0.75);
+  --nav-active: #ede5dc;
 }
 
 @theme inline {
@@ -10,17 +42,56 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-display: var(--font-fraunces);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-display {
+  font-family: var(--font-fraunces), Georgia, serif;
+}
+
+/* Superfícies e textos neutros (complementa utilitários stone/white) */
+.dark :where(.text-stone-900, .text-\[\#3d2c29\]) {
+  color: var(--foreground);
+}
+
+.dark :where(.text-stone-800, .text-stone-700) {
+  color: color-mix(in srgb, var(--foreground) 92%, transparent);
+}
+
+.dark :where(.text-stone-600, .text-stone-500) {
+  color: var(--muted);
+}
+
+.dark
+  :where(
+    .border-stone-200,
+    .border-stone-200\/70,
+    .border-stone-200\/80,
+    .border-stone-200\/90,
+    .border-stone-100,
+    .border-stone-300\/80
+  ) {
+  border-color: var(--border);
+}
+
+.dark :where(.bg-white, .bg-white\/80, .bg-white\/60, .bg-white\/70, .bg-white\/90) {
+  background-color: var(--card-elevated);
+}
+
+.dark :where(.bg-stone-50, .bg-stone-50\/80, .bg-stone-50\/50) {
+  background-color: color-mix(in srgb, var(--card) 85%, var(--foreground) 3%);
+}
+
+.dark :where(.hover\:bg-stone-100:hover, .hover\:bg-stone-50\/80:hover) {
+  background-color: color-mix(in srgb, var(--card-elevated) 90%, white 5%);
+}
+
+.dark :where(.ring-stone-200\/80) {
+  --tw-ring-color: var(--border);
 }

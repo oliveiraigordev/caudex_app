@@ -111,7 +111,7 @@ export default async function PlantDetailPage({
       </div>
 
       <div className="flex flex-col gap-4 lg:grid lg:grid-cols-[minmax(260px,320px)_minmax(0,1fr)] lg:items-start lg:gap-6">
-        <aside className="flex min-w-0 flex-col gap-4 lg:sticky lg:top-[7.5rem] lg:max-h-[calc(100dvh-8rem)] lg:overflow-y-auto lg:overscroll-contain">
+        <aside className="flex min-w-0 flex-col gap-4 lg:sticky lg:top-20 lg:self-start [&>*]:shrink-0">
           <PlantEditForm
             plant={plant}
             locations={formOptions.locations}

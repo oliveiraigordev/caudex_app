@@ -48,6 +48,7 @@
 html {
   overflow-x: clip;
   max-width: 100%;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
@@ -56,6 +57,8 @@ body {
   -webkit-font-smoothing: antialiased;
   overflow-x: clip;
   max-width: 100%;
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 
 .font-display {

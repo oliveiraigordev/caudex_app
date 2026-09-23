@@ -135,13 +135,13 @@ export function PushNotificationsSetup({ className }: { className?: string }) {
         className,
       )}
     >
-      <div className="flex gap-3">
+      <div className="flex min-w-0 gap-3">
         <span
           className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#c45c4a]/15 text-[#c45c4a]"
         >
           <Smartphone className="h-5 w-5" />
         </span>
-        <div>
+        <div className="min-w-0">
           <p className="text-sm font-medium text-[var(--foreground)]">
             Notificações no celular
           </p>
@@ -164,7 +164,7 @@ export function PushNotificationsSetup({ className }: { className?: string }) {
           ) : null}
         </div>
       </div>
-      <div className="flex shrink-0 gap-2">
+      <div className="flex w-full shrink-0 flex-wrap gap-2 sm:w-auto">
         {state === "on" ? (
           <Button type="button" variant="outline" size="sm" onClick={() => void disable()}>
             <BellOff className="h-3.5 w-3.5" />

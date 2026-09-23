@@ -27,7 +27,7 @@ export default async function LoginPage({
 
   return (
     <PageShell narrow className="flex min-h-[70vh] items-center justify-center">
-      <div className="w-full max-w-md space-y-6 rounded-3xl border border-[var(--border)] bg-[var(--card)] p-8 shadow-lg shadow-stone-300/20">
+      <div className="w-full max-w-md space-y-6 rounded-3xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-lg shadow-stone-300/20 sm:p-8">
         <div className="text-center">
           <span
             className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#c45c4a] to-[#8f3d32] text-white shadow-md"

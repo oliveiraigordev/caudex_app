@@ -50,27 +50,30 @@ export function CollapsibleCard({
   return (
     <Card className={className}>
       <CardHeader className="space-y-0">
-        <div className="flex items-start gap-2">
+        <div className="flex flex-wrap items-start gap-2">
           {collapsible ? (
             <button
               type="button"
               onClick={() => setOpen((v) => !v)}
-              className="-ml-1 flex min-w-0 flex-1 items-center gap-2 rounded-lg py-0.5 text-left transition hover:bg-[var(--card-elevated)]/60"
+              className="-ml-1 flex min-w-0 flex-1 basis-[min(100%,12rem)] items-start gap-2 rounded-lg py-0.5 text-left transition hover:bg-[var(--card-elevated)]/60"
               aria-expanded={open}
             >
               <ChevronDown
                 className={cn(
-                  "h-5 w-5 shrink-0 text-stone-500 transition-transform",
+                  "mt-0.5 h-5 w-5 shrink-0 text-stone-500 transition-transform",
                   open && "rotate-180",
                 )}
               />
-              <CardTitle className="text-base leading-snug">{title}</CardTitle>
+              <CardTitle className="min-w-0 text-base leading-snug">{title}</CardTitle>
             </button>
           ) : (
-            <CardTitle className="flex-1 text-base leading-snug">{title}</CardTitle>
+            <CardTitle className="min-w-0 flex-1 text-base leading-snug">{title}</CardTitle>
           )}
           {headerActions ? (
-            <div className="shrink-0" onClick={(e) => e.stopPropagation()}>
+            <div
+              className="ml-auto shrink-0"
+              onClick={(e) => e.stopPropagation()}
+            >
               {headerActions}
             </div>
           ) : null}
@@ -78,9 +81,10 @@ export function CollapsibleCard({
         {description ? (
           <p
             className={cn(
-              "pt-2 text-xs text-stone-600",
+              "pt-2 text-xs leading-relaxed text-stone-600",
               collapsible ? "pl-7" : "",
-              collapsible && !open && "truncate text-stone-500",
+              collapsible && !open && "line-clamp-2 text-stone-500",
+              collapsible && open && "break-words",
             )}
           >
             {description}

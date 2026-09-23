@@ -22,9 +22,9 @@ export default async function HomePage() {
   } = await getDashboardData();
 
   return (
-    <PageShell className="space-y-10">
-      <section className="space-y-3">
-        <h1 className="font-display text-3xl font-semibold tracking-tight text-[#3d2c29] sm:text-4xl">
+    <PageShell className="space-y-8 sm:space-y-10">
+      <section className="space-y-2 sm:space-y-3">
+        <h1 className="font-display text-2xl font-semibold tracking-tight text-[#3d2c29] sm:text-4xl">
           {timeOfDayGreeting()}
         </h1>
         <p className="max-w-xl text-base leading-relaxed text-stone-600">
@@ -51,16 +51,14 @@ export default async function HomePage() {
         </Card>
 
         <Card className="min-w-0 lg:col-span-3">
-          <CardHeader className="min-w-0 flex-row items-center justify-between space-y-0">
-            <div className="min-w-0">
-              <CardTitle className="flex items-center gap-2">
-                <Bell className="h-4 w-4 text-[#c45c4a]" />
-                Lembretes
-              </CardTitle>
-              <p className="mt-1 text-sm text-stone-500">
-                Marque com ✓ o que já fez — separado por hoje e rotina
-              </p>
-            </div>
+          <CardHeader className="min-w-0 space-y-1">
+            <CardTitle className="flex flex-wrap items-center gap-2 text-base sm:text-lg">
+              <Bell className="h-4 w-4 shrink-0 text-[#c45c4a]" />
+              Lembretes
+            </CardTitle>
+            <p className="text-xs leading-relaxed text-stone-500 sm:text-sm">
+              Marque com ✓ o que já fez — separado por hoje e rotina
+            </p>
           </CardHeader>
           <CardContent>
             <AlertsSection
@@ -80,11 +78,11 @@ export default async function HomePage() {
             </h2>
             <p className="text-sm text-stone-500">Toque para abrir a ficha</p>
           </div>
-          <div className="flex gap-2">
-            <Button asChild variant="outline" size="sm">
+          <div className="flex w-full gap-2 sm:w-auto">
+            <Button asChild variant="outline" size="sm" className="flex-1 sm:flex-none">
               <Link href="/plantas">Ver todas</Link>
             </Button>
-            <Button asChild size="sm">
+            <Button asChild size="sm" className="flex-1 sm:flex-none">
               <Link href="/plantas/nova">
                 <Plus className="h-4 w-4" />
                 Nova

@@ -127,12 +127,13 @@ export function AlertsSection({
 
   return (
     <div className="min-w-0 w-full max-w-full space-y-4">
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
         {alerts.length > 0 && (
           <Button
             type="button"
             variant="secondary"
             size="sm"
+            className="w-full justify-center sm:w-auto"
             disabled={pending}
             onClick={() =>
               startTransition(async () => {
@@ -149,6 +150,7 @@ export function AlertsSection({
             type="button"
             variant="ghost"
             size="sm"
+            className="w-full justify-center sm:w-auto"
             disabled={pending}
             onClick={() =>
               startTransition(async () => {

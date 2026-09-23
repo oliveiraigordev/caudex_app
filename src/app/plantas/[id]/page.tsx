@@ -58,23 +58,25 @@ export default async function PlantDetailPage({
         prevId={neighbors.prev?.id ?? null}
         nextId={neighbors.next?.id ?? null}
       />
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3">
         <Link
           href="/plantas"
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-stone-500 transition hover:text-[#c45c4a]"
+          className="inline-flex w-fit items-center gap-1.5 text-sm font-medium text-stone-500 transition hover:text-[#c45c4a]"
         >
           <ArrowLeft className="h-4 w-4" />
           Voltar às plantas
         </Link>
-        <PlantPager
-          prev={neighbors.prev}
-          next={neighbors.next}
-          currentCode={plant.code}
-        />
+        <div className="flex justify-center sm:justify-end">
+          <PlantPager
+            prev={neighbors.prev}
+            next={neighbors.next}
+            currentCode={plant.code}
+          />
+        </div>
       </div>
 
       <div className="overflow-hidden rounded-3xl border border-stone-200/70 bg-[var(--card)] shadow-md shadow-stone-300/20">
-        <div className="relative aspect-[21/9] min-h-[140px] bg-gradient-to-br from-[#f0ddd4] to-[#e8d5c4] sm:aspect-[3/1]">
+        <div className="relative aspect-[4/3] min-h-[160px] bg-gradient-to-br from-[#f0ddd4] to-[#e8d5c4] sm:aspect-[21/9] sm:min-h-[140px] md:aspect-[3/1]">
           {heroPhoto ? (
             <Image
               src={heroPhoto}
@@ -109,7 +111,7 @@ export default async function PlantDetailPage({
       </div>
 
       <div className="flex flex-col gap-4 lg:grid lg:grid-cols-[minmax(260px,320px)_minmax(0,1fr)] lg:items-start lg:gap-6">
-        <aside className="flex min-w-0 flex-col gap-4 lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto">
+        <aside className="flex min-w-0 flex-col gap-4 lg:sticky lg:top-[7.5rem] lg:max-h-[calc(100dvh-8rem)] lg:overflow-y-auto lg:overscroll-contain">
           <PlantEditForm
             plant={plant}
             locations={formOptions.locations}

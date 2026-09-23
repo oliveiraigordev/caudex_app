@@ -20,6 +20,12 @@ const fraunces = Fraunces({
   weight: ["500", "600", "700"],
 });
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
+
 export const metadata: Metadata = {
   title: "Caudexia — rosa do deserto",
   description:

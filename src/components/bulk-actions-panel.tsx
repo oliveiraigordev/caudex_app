@@ -244,11 +244,15 @@ export function BulkActionsPanel({ plants }: { plants: PlantRow[] }) {
             />
           </label>
 
-          <Button type="submit" disabled={pending || selected.size === 0}>
+          <Button
+            type="submit"
+            className="w-full sm:w-auto"
+            disabled={pending || selected.size === 0}
+          >
             {pending ? "Salvando…" : submitLabel}
           </Button>
           {selected.size > 0 && (
-            <p className="text-xs text-stone-500">
+            <p className="break-words text-xs text-stone-500">
               Selecionadas: {selectedCodes}
             </p>
           )}

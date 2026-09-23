@@ -95,7 +95,7 @@ export function NewPlantForm({
 
       <div className="space-y-3">
         <p className="text-sm font-medium text-stone-700">Tipo de criação</p>
-        <div className="grid gap-2 sm:grid-cols-3">
+        <div className="grid gap-2 md:grid-cols-3">
           {creationOptions.map((opt) => (
             <button
               key={opt.value}
@@ -130,7 +130,7 @@ export function NewPlantForm({
         </label>
         <div className="text-sm">
           <p className="font-medium text-stone-700">Códigos gerados</p>
-          <p className="mt-1.5 rounded-xl border border-dashed border-stone-200 bg-stone-50/80 px-3 py-2.5 font-mono text-xs text-stone-600">
+          <p className="mt-1.5 break-all rounded-xl border border-dashed border-stone-200 bg-stone-50/80 px-3 py-2.5 font-mono text-xs leading-relaxed text-stone-600">
             {codesPreview.join(", ")}
           </p>
           <p className="mt-1 text-xs text-stone-500">
@@ -284,11 +284,11 @@ export function NewPlantForm({
 
       <PotFields />
 
-      <div className="flex flex-wrap gap-2 pt-2">
-        <Button type="submit">
+      <div className="flex flex-col gap-2 pt-2 sm:flex-row sm:flex-wrap">
+        <Button type="submit" className="w-full sm:w-auto">
           {quantity === 1 ? "Criar planta" : `Criar ${quantity} plantas`}
         </Button>
-        <Button asChild variant="outline" type="button">
+        <Button asChild variant="outline" type="button" className="w-full sm:w-auto">
           <Link href="/plantas">Cancelar</Link>
         </Button>
       </div>

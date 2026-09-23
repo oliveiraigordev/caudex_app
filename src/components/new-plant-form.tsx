@@ -282,7 +282,12 @@ export function NewPlantForm({
         </div>
       )}
 
-      <PotFields />
+      <PotFields
+        key={creationType}
+        defaultPreset={
+          creationType === "SEMENTE" ? "BANDEJA_ALVEOLADA" : ""
+        }
+      />
 
       <div className="flex flex-col gap-2 pt-2 sm:flex-row sm:flex-wrap">
         <Button type="submit" className="w-full sm:w-auto">

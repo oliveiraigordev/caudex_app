@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { potPresets } from "@/lib/pot-sizes";
+import { isBandejaAlveoladaPreset, potPresets } from "@/lib/pot-sizes";
 
 const inputClass =
   "mt-1 w-full rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#c45c4a]/15";
@@ -27,8 +27,8 @@ export function PotFields({
   return (
     <div className="space-y-3 rounded-xl border border-stone-200/80 bg-stone-50/50 p-3">
       <p className="text-xs font-medium text-stone-600">
-        Vaso / pote — padrões comuns: bandejas P6–P20 e vasos em litros (valores
-        aproximados; ajuste se o seu for diferente).
+        Vaso / pote — bandejas alveoladas (germinação), bandejas P6–P20 e vasos em
+        litros (valores aproximados; ajuste se o seu for diferente).
       </p>
       <label className="block text-sm font-medium text-stone-700">
         Tamanho
@@ -50,9 +50,16 @@ export function PotFields({
       {selected && selected.id !== "OUTRO" && (
         <p className="text-xs text-stone-500">
           Referência:{" "}
-          {selected.diameterCm ? `Ø ~${selected.diameterCm} cm` : ""}
-          {selected.diameterCm && selected.volumeLiters ? " · " : ""}
-          {selected.volumeLiters ? `~${selected.volumeLiters} L` : ""}
+          {isBandejaAlveoladaPreset(selected.id)
+            ? selected.diameterCm
+              ? `cada célula ~${selected.diameterCm} cm (buraco)`
+              : "bandeja multi-células"
+            : [
+                selected.diameterCm ? `Ø ~${selected.diameterCm} cm` : "",
+                selected.volumeLiters ? `~${selected.volumeLiters} L` : "",
+              ]
+                .filter(Boolean)
+                .join(" · ")}
         </p>
       )}
       <div className="grid gap-3 sm:grid-cols-2">

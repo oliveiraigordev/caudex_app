@@ -1,6 +1,11 @@
 /** Referência comum no viveiro BR (bandejas P e vasos por volume). */
 
 export type PotPresetId =
+  | "BANDEJA_ALVEOLADA"
+  | "BANDEJA_200"
+  | "BANDEJA_128"
+  | "BANDEJA_72"
+  | "BANDEJA_40"
   | "P6"
   | "P9"
   | "P11"
@@ -26,6 +31,41 @@ export type PotPreset = {
 };
 
 export const potPresets: PotPreset[] = [
+  {
+    id: "BANDEJA_ALVEOLADA",
+    label: "Bandeja alveolada (multi-buraquinhos)",
+    diameterCm: 3,
+    volumeLiters: 0.04,
+    hint: "Germinação de sementes",
+  },
+  {
+    id: "BANDEJA_200",
+    label: "Bandeja alveolada ~200 células",
+    diameterCm: 2.5,
+    volumeLiters: 0.03,
+    hint: "Buracos bem pequenos",
+  },
+  {
+    id: "BANDEJA_128",
+    label: "Bandeja alveolada ~128 células",
+    diameterCm: 3,
+    volumeLiters: 0.04,
+    hint: "Comum para sementes",
+  },
+  {
+    id: "BANDEJA_72",
+    label: "Bandeja alveolada ~72 células",
+    diameterCm: 4,
+    volumeLiters: 0.06,
+    hint: "Células um pouco maiores",
+  },
+  {
+    id: "BANDEJA_40",
+    label: "Bandeja alveolada ~40 células",
+    diameterCm: 5,
+    volumeLiters: 0.1,
+    hint: "Mudinhas com primeiras folhas",
+  },
   {
     id: "P6",
     label: "P-06 / P6 (bandeja ~6 cm)",
@@ -70,6 +110,10 @@ export const potPresets: PotPreset[] = [
   { id: "V10L", label: "Vaso 10 L", volumeLiters: 10 },
   { id: "OUTRO", label: "Outro (medidas manuais)" },
 ];
+
+export function isBandejaAlveoladaPreset(id: string | null | undefined): boolean {
+  return Boolean(id?.startsWith("BANDEJA"));
+}
 
 export function getPotPreset(id: string | null | undefined): PotPreset | null {
   if (!id) return null;

@@ -8,7 +8,7 @@ export async function savePlantImage(file: File): Promise<string> {
   const ext = path.extname(file.name) || ".jpg";
   const filename = `${randomUUID()}${ext}`;
 
-  if (process.env.BLOB_READ_WRITE_TOKEN) {
+  if (process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID) {
     const blob = await put(`plants/${filename}`, file, {
       access: "public",
       addRandomSuffix: false,

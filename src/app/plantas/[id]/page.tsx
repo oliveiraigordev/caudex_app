@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import Image from "next/image";
 import Link from "next/link";
 import {
   getPlantById,
@@ -19,8 +18,8 @@ import { PlantEditForm } from "@/components/plant-edit-form";
 import { ArrowLeft } from "lucide-react";
 import { PlantPager } from "@/components/plant-pager";
 import { PlantPagerKeyboard } from "@/components/plant-pager-keyboard";
-import { Badge } from "@/components/ui/badge";
 import { PlantDetailGallery } from "@/components/plant-detail-gallery";
+import { PlantHeroBanner } from "@/components/plant-hero-banner";
 import { requireUserId } from "@/lib/session";
 
 export default async function PlantDetailPage({
@@ -75,40 +74,15 @@ export default async function PlantDetailPage({
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-3xl border border-stone-200/70 bg-[var(--card)] shadow-md shadow-stone-300/20">
-        <div className="relative aspect-[4/3] min-h-[160px] bg-gradient-to-br from-[#f0ddd4] to-[#e8d5c4] sm:aspect-[21/9] sm:min-h-[140px] md:aspect-[3/1]">
-          {heroPhoto ? (
-            <Image
-              src={heroPhoto}
-              alt=""
-              fill
-              className="object-cover"
-              priority
-              sizes="100vw"
-            />
-          ) : null}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#3d2c29]/75 via-[#3d2c29]/25 to-transparent" />
-          <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-8">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/70">
-              {plant.code}
-            </p>
-            <h1 className="font-display text-2xl font-semibold text-white sm:text-3xl">
-              {plant.nickname ?? plant.code}
-            </h1>
-            <div className="mt-3 flex flex-wrap gap-2">
-              <Badge className="bg-white/20 text-white backdrop-blur-sm">
-                {phaseLabels[plant.phase]}
-              </Badge>
-              <Badge className="bg-white/15 text-white/95 backdrop-blur-sm" variant="muted">
-                {statusLabels[plant.status]}
-              </Badge>
-              <Badge className="bg-white/15 text-white/95 backdrop-blur-sm" variant="muted">
-                {originLabels[plant.origin]}
-              </Badge>
-            </div>
-          </div>
-        </div>
-      </div>
+      <PlantHeroBanner
+        plantId={plant.id}
+        heroPhotoPath={heroPhoto ?? null}
+        code={plant.code}
+        nickname={plant.nickname}
+        phaseLabel={phaseLabels[plant.phase]}
+        statusLabel={statusLabels[plant.status]}
+        originLabel={originLabels[plant.origin]}
+      />
 
       <div className="flex flex-col gap-4 lg:grid lg:grid-cols-[minmax(260px,320px)_minmax(0,1fr)] lg:items-start lg:gap-6">
         <aside className="flex min-w-0 flex-col gap-4 lg:sticky lg:top-20 lg:self-start [&>*]:shrink-0">

@@ -6,10 +6,10 @@ import {
 import { getPlantsWithEvents, getSettings } from "@/lib/queries";
 import { fetchBananalWeather } from "@/lib/weather";
 
-export async function getAlertsBundle() {
+export async function getAlertsBundle(userId: string) {
   const [plants, settings] = await Promise.all([
-    getPlantsWithEvents(),
-    getSettings(),
+    getPlantsWithEvents(userId),
+    getSettings(userId),
   ]);
 
   let weather = null;
@@ -24,7 +24,7 @@ export async function getAlertsBundle() {
   }
 
   const allAlerts = weather ? buildAlerts(plants, settings, weather) : [];
-  const dismissedIds = await getDismissedAlertIds(allAlerts);
+  const dismissedIds = await getDismissedAlertIds(userId, allAlerts);
   const activeAlerts = filterActiveAlerts(allAlerts, dismissedIds);
   const dismissedCount = allAlerts.length - activeAlerts.length;
 

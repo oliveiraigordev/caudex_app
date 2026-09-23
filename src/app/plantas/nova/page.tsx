@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { prisma } from "@/lib/db";
 import { createPlant } from "@/app/actions";
+import { getPlantFormOptions } from "@/lib/queries";
+import { requireUserId } from "@/lib/session";
 import { PageShell } from "@/components/page-shell";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,9 +12,8 @@ const inputClass =
   "mt-1.5 w-full rounded-xl border border-stone-200 bg-white/90 px-3 py-2.5 text-sm outline-none transition focus:border-[#d4a088] focus:ring-2 focus:ring-[#c45c4a]/15";
 
 export default async function NovaPlantaPage() {
-  const locations = await prisma.cultivationLocation.findMany({
-    orderBy: { name: "asc" },
-  });
+  const userId = await requireUserId();
+  const { locations } = await getPlantFormOptions(userId, "__new__");
 
   async function handleCreate(formData: FormData) {
     "use server";

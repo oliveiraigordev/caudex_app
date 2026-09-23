@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Sprout } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { SignOutButton } from "@/components/sign-out-button";
 import { cn } from "@/lib/utils";
 
 const links = [
@@ -38,6 +39,7 @@ export function SiteHeader() {
           </span>
         </Link>
         <div className="flex items-center gap-2">
+          <SignOutButton />
           <ThemeToggle />
           <nav
             className="flex items-center gap-1 rounded-full border border-[var(--border)] bg-[var(--nav-pill)] p-1 shadow-sm"

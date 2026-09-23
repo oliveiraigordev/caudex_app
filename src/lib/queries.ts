@@ -1,17 +1,19 @@
 import { prisma } from "@/lib/db";
 import { getAlertsBundle } from "@/lib/alerts-data";
 import { sortAlerts } from "@/lib/alert-labels";
+import { requireUserId } from "@/lib/session";
 
-export async function getSettings() {
+export async function getSettings(userId: string) {
   return prisma.userSettings.upsert({
-    where: { id: "default" },
+    where: { userId },
     update: {},
-    create: {},
+    create: { userId },
   });
 }
 
-export async function getPlantsWithEvents() {
+export async function getPlantsWithEvents(userId: string) {
   return prisma.plant.findMany({
+    where: { userId },
     orderBy: { code: "asc" },
     include: {
       location: true,
@@ -23,8 +25,9 @@ export async function getPlantsWithEvents() {
   });
 }
 
-export async function getPlantNeighbors(currentId: string) {
+export async function getPlantNeighbors(userId: string, currentId: string) {
   const plants = await prisma.plant.findMany({
+    where: { userId },
     orderBy: { code: "asc" },
     select: { id: true, code: true, nickname: true },
   });
@@ -40,11 +43,14 @@ export async function getPlantNeighbors(currentId: string) {
   };
 }
 
-export async function getPlantFormOptions(excludePlantId: string) {
+export async function getPlantFormOptions(userId: string, excludePlantId: string) {
   const [locations, plants] = await Promise.all([
-    prisma.cultivationLocation.findMany({ orderBy: { name: "asc" } }),
+    prisma.cultivationLocation.findMany({
+      where: { userId },
+      orderBy: { name: "asc" },
+    }),
     prisma.plant.findMany({
-      where: { id: { not: excludePlantId } },
+      where: { userId, id: { not: excludePlantId } },
       orderBy: { code: "asc" },
       select: { id: true, code: true, nickname: true },
     }),
@@ -52,9 +58,9 @@ export async function getPlantFormOptions(excludePlantId: string) {
   return { locations, plants };
 }
 
-export async function getPlantById(id: string) {
-  return prisma.plant.findUnique({
-    where: { id },
+export async function getPlantById(userId: string, id: string) {
+  return prisma.plant.findFirst({
+    where: { id, userId },
     include: {
       location: true,
       events: {
@@ -68,8 +74,25 @@ export async function getPlantById(id: string) {
   });
 }
 
+export async function ensureDefaultLocation(userId: string) {
+  const existing = await prisma.cultivationLocation.findFirst({
+    where: { userId },
+    orderBy: { createdAt: "asc" },
+  });
+  if (existing) return existing;
+  return prisma.cultivationLocation.create({
+    data: {
+      userId,
+      name: "Principal",
+      exposedToRain: true,
+      notes: "Local padrão em Bananal/SP",
+    },
+  });
+}
+
 export async function getDashboardData() {
-  const bundle = await getAlertsBundle();
+  const userId = await requireUserId();
+  const bundle = await getAlertsBundle(userId);
   const activeIds = new Set(bundle.activeAlerts.map((a) => a.id));
   const completedAlerts = sortAlerts(
     bundle.allAlerts.filter((a) => !activeIds.has(a.id)),

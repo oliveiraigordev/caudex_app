@@ -8,6 +8,10 @@ import {
   restoreAllDismissalsToday,
 } from "@/lib/alert-dismissals";
 import { getAlertsBundle } from "@/lib/alerts-data";
+import { requireOwnedPlant } from "@/lib/plant-access";
+import { ensureDefaultLocation } from "@/lib/queries";
+import { requireUserId } from "@/lib/session";
+import { savePlantImage } from "@/lib/storage";
 
 function revalidateAlerts() {
   revalidatePath("/");
@@ -18,15 +22,13 @@ import { applyAutoPhase } from "@/lib/plant-phase-auto";
 import { resolvePotFromPreset } from "@/lib/pot-sizes";
 import { repotEventTitle } from "@/lib/repot-metadata";
 import type { PollinationResultOutcome } from "@/lib/pollination-metadata";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
-import { randomUUID } from "crypto";
-
 export async function updateEventOccurredAt(input: {
   eventId: string;
   plantId: string;
   occurredAt: string;
 }) {
+  const userId = await requireUserId();
+  await requireOwnedPlant(input.plantId, userId);
   const parsed = new Date(input.occurredAt);
   if (Number.isNaN(parsed.getTime())) {
     throw new Error("Data inválida");
@@ -53,6 +55,9 @@ export async function createEvent(input: {
   potLabel?: string;
   substrateNotes?: string;
 }) {
+  const userId = await requireUserId();
+  await requireOwnedPlant(input.plantId, userId);
+
   if (input.type === "REPLANTIO") {
     if (!input.potPreset) {
       throw new Error("Informe o tamanho do vaso no replantio");
@@ -124,12 +129,20 @@ export async function createBulkEvents(input: {
   potLabel?: string;
   substrateNotes?: string;
 }) {
+  const userId = await requireUserId();
   if (input.plantIds.length === 0) {
     throw new Error("Selecione ao menos uma planta");
   }
   const occurred = new Date(input.occurredAt);
   if (Number.isNaN(occurred.getTime())) {
     throw new Error("Data inválida");
+  }
+
+  const ownedCount = await prisma.plant.count({
+    where: { userId, id: { in: input.plantIds } },
+  });
+  if (ownedCount !== input.plantIds.length) {
+    throw new Error("Seleção de plantas inválida");
   }
 
   if (input.type === "REPLANTIO" && !input.potPreset) {
@@ -210,6 +223,8 @@ export async function createBulkEvents(input: {
 }
 
 export async function deleteEvent(eventId: string, plantId: string) {
+  const userId = await requireUserId();
+  await requireOwnedPlant(plantId, userId);
   await prisma.plantEvent.delete({ where: { id: eventId } });
   revalidateAlerts();
   revalidatePath("/plantas");
@@ -236,6 +251,8 @@ export async function updatePlant(
     potLabel?: string | null;
   },
 ) {
+  const userId = await requireUserId();
+  await requireOwnedPlant(id, userId);
   const { arrivedAt, ...rest } = data;
   await prisma.plant.update({
     where: { id },
@@ -309,21 +326,25 @@ export async function createPlant(input: {
   heightCm?: number;
   locationId?: string;
 }) {
-  const location =
-    input.locationId ??
-    (
-      await prisma.cultivationLocation.findFirst({
-        orderBy: { createdAt: "asc" },
-      })
-    )?.id;
+  const userId = await requireUserId();
+  let locationId = input.locationId;
+  if (locationId) {
+    const loc = await prisma.cultivationLocation.findFirst({
+      where: { id: locationId, userId },
+    });
+    if (!loc) throw new Error("Local inválido");
+  } else {
+    locationId = (await ensureDefaultLocation(userId)).id;
+  }
 
   const plant = await prisma.plant.create({
     data: {
+      userId,
       code: input.code,
       nickname: input.nickname,
       origin: input.origin ?? "SEMENTE",
       heightCm: input.heightCm,
-      locationId: location,
+      locationId,
       phase: "MUDA_SEMENTE",
       status: "SAUDAVEL",
     },
@@ -342,17 +363,8 @@ export async function createPlant(input: {
   return plant.id;
 }
 
-async function savePhotoFile(file: File) {
-  const bytes = Buffer.from(await file.arrayBuffer());
-  const ext = path.extname(file.name) || ".jpg";
-  const filename = `${randomUUID()}${ext}`;
-  const uploadDir = path.join(process.cwd(), "public", "uploads");
-  await mkdir(uploadDir, { recursive: true });
-  await writeFile(path.join(uploadDir, filename), bytes);
-  return `/uploads/${filename}`;
-}
-
 export async function createPollinationEvent(formData: FormData) {
+  const userId = await requireUserId();
   const plantId = String(formData.get("plantId") ?? "");
   const occurredAt = String(formData.get("occurredAt") ?? "");
   const notes = String(formData.get("notes") ?? "").trim();
@@ -363,11 +375,12 @@ export async function createPollinationEvent(formData: FormData) {
   const caption = String(formData.get("caption") ?? "").trim();
 
   if (!plantId) throw new Error("Planta obrigatória");
+  await requireOwnedPlant(plantId, userId);
 
   let malePlantCode: string | null = null;
   if (malePlantId) {
-    const male = await prisma.plant.findUnique({
-      where: { id: malePlantId },
+    const male = await prisma.plant.findFirst({
+      where: { id: malePlantId, userId },
       select: { code: true },
     });
     malePlantCode = male?.code ?? null;
@@ -395,7 +408,7 @@ export async function createPollinationEvent(formData: FormData) {
   });
 
   if (file?.size) {
-    const photoPath = await savePhotoFile(file);
+    const photoPath = await savePlantImage(file);
     await prisma.plantPhoto.create({
       data: {
         plantId,
@@ -412,6 +425,7 @@ export async function createPollinationEvent(formData: FormData) {
 }
 
 export async function createPollinationResultEvent(formData: FormData) {
+  const userId = await requireUserId();
   const plantId = String(formData.get("plantId") ?? "");
   const occurredAt = String(formData.get("occurredAt") ?? "");
   const notes = String(formData.get("notes") ?? "").trim();
@@ -422,6 +436,7 @@ export async function createPollinationResultEvent(formData: FormData) {
   const caption = String(formData.get("caption") ?? "").trim();
 
   if (!plantId || !outcome) throw new Error("Dados incompletos");
+  await requireOwnedPlant(plantId, userId);
 
   const event = await prisma.plantEvent.create({
     data: {
@@ -439,7 +454,7 @@ export async function createPollinationResultEvent(formData: FormData) {
   });
 
   if (file?.size) {
-    const photoPath = await savePhotoFile(file);
+    const photoPath = await savePlantImage(file);
     await prisma.plantPhoto.create({
       data: {
         plantId,
@@ -456,6 +471,7 @@ export async function createPollinationResultEvent(formData: FormData) {
 }
 
 export async function uploadPlantPhoto(formData: FormData) {
+  const userId = await requireUserId();
   const plantId = formData.get("plantId") as string;
   const eventId = (formData.get("eventId") as string) || undefined;
   const caption = (formData.get("caption") as string) || undefined;
@@ -464,8 +480,9 @@ export async function uploadPlantPhoto(formData: FormData) {
   if (!plantId || !file?.size) {
     throw new Error("Planta e arquivo são obrigatórios");
   }
+  await requireOwnedPlant(plantId, userId);
 
-  const photoPath = await savePhotoFile(file);
+  const photoPath = await savePlantImage(file);
 
   const photo = await prisma.plantPhoto.create({
     data: {
@@ -493,18 +510,21 @@ export async function uploadPlantPhoto(formData: FormData) {
 }
 
 export async function dismissAlert(alertId: string) {
-  const { allAlerts } = await getAlertsBundle();
-  await dismissAlertById(alertId, allAlerts);
+  const userId = await requireUserId();
+  const { allAlerts } = await getAlertsBundle(userId);
+  await dismissAlertById(userId, alertId, allAlerts);
   revalidateAlerts();
 }
 
 export async function dismissAllAlerts() {
-  const { activeAlerts } = await getAlertsBundle();
-  await dismissAlerts(activeAlerts);
+  const userId = await requireUserId();
+  const { activeAlerts } = await getAlertsBundle(userId);
+  await dismissAlerts(userId, activeAlerts);
   revalidateAlerts();
 }
 
 export async function restoreDismissedAlerts() {
-  await restoreAllDismissalsToday();
+  const userId = await requireUserId();
+  await restoreAllDismissalsToday(userId);
   revalidateAlerts();
 }

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getPlantsWithEvents } from "@/lib/queries";
+import { requireUserId } from "@/lib/session";
 import { PageShell } from "@/components/page-shell";
 import { PlantCard } from "@/components/plant-card";
 import { BulkActionsPanel } from "@/components/bulk-actions-panel";
@@ -8,7 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 
 export default async function PlantasPage() {
-  const plants = await getPlantsWithEvents();
+  const userId = await requireUserId();
+  const plants = await getPlantsWithEvents(userId);
 
   return (
     <PageShell className="space-y-8">

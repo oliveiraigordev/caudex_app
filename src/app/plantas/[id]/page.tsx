@@ -21,6 +21,7 @@ import { PlantPager } from "@/components/plant-pager";
 import { PlantPagerKeyboard } from "@/components/plant-pager-keyboard";
 import { Badge } from "@/components/ui/badge";
 import { PlantDetailGallery } from "@/components/plant-detail-gallery";
+import { requireUserId } from "@/lib/session";
 
 export default async function PlantDetailPage({
   params,
@@ -28,15 +29,17 @@ export default async function PlantDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const plant = await getPlantById(id);
+  const userId = await requireUserId();
+  const plant = await getPlantById(userId, id);
   if (!plant) notFound();
 
   const [neighbors, formOptions] = await Promise.all([
-    getPlantNeighbors(id),
-    getPlantFormOptions(id),
+    getPlantNeighbors(userId, id),
+    getPlantFormOptions(userId, id),
   ]);
 
-  const { activeAlerts, allAlerts, dismissedCount } = await getAlertsBundle();
+  const { activeAlerts, allAlerts, dismissedCount } =
+    await getAlertsBundle(userId);
   const plantAlerts = activeAlerts.filter((a) =>
     alertAppliesToPlant(a, plant),
   );

@@ -21,10 +21,10 @@ export function getDismissalStorageKey(alert: AppAlert): string {
   return alert.id;
 }
 
-/** Remove chaves @data de dias anteriores. */
-export async function purgeStaleTodayDismissals() {
+/** Remove chaves @data de dias anteriores (por usuário). */
+export async function purgeStaleTodayDismissals(userId: string) {
   const today = todayInTz();
-  const rows = await prisma.alertDismissal.findMany();
+  const rows = await prisma.alertDismissal.findMany({ where: { userId } });
   const staleIds = rows
     .filter((row) => {
       const m = row.alertKey.match(/@(\d{4}-\d{2}-\d{2})$/);
@@ -37,10 +37,11 @@ export async function purgeStaleTodayDismissals() {
 }
 
 export async function getDismissedAlertIds(
+  userId: string,
   alerts: AppAlert[],
 ): Promise<Set<string>> {
-  await purgeStaleTodayDismissals();
-  const rows = await prisma.alertDismissal.findMany();
+  await purgeStaleTodayDismissals(userId);
+  const rows = await prisma.alertDismissal.findMany({ where: { userId } });
   const today = todayInTz();
   const dismissed = new Set<string>();
 
@@ -64,32 +65,33 @@ export function filterActiveAlerts(
   return alerts.filter((a) => !dismissedIds.has(a.id));
 }
 
-export async function dismissAlertKeys(keys: string[]) {
+export async function dismissAlertKeys(userId: string, keys: string[]) {
   for (const key of keys) {
     await prisma.alertDismissal.upsert({
-      where: { alertKey: key },
+      where: { userId_alertKey: { userId, alertKey: key } },
       update: { dismissedAt: new Date() },
-      create: { alertKey: key },
+      create: { userId, alertKey: key },
     });
   }
 }
 
-export async function dismissAlerts(alerts: AppAlert[]) {
+export async function dismissAlerts(userId: string, alerts: AppAlert[]) {
   const keys = alerts.map(getDismissalStorageKey);
-  await dismissAlertKeys(keys);
+  await dismissAlertKeys(userId, keys);
 }
 
 export async function dismissAlertById(
+  userId: string,
   alertId: string,
   allAlerts: AppAlert[],
 ) {
   const alert = allAlerts.find((a) => a.id === alertId);
   if (!alert) return;
-  await dismissAlertKeys([getDismissalStorageKey(alert)]);
+  await dismissAlertKeys(userId, [getDismissalStorageKey(alert)]);
 }
 
-export async function restoreAllDismissalsToday() {
-  const rows = await prisma.alertDismissal.findMany();
+export async function restoreAllDismissalsToday(userId: string) {
+  const rows = await prisma.alertDismissal.findMany({ where: { userId } });
   const today = todayInTz();
   const toDelete = rows.filter((row) => {
     if (dismissedToday(row.dismissedAt)) return true;
@@ -100,11 +102,4 @@ export async function restoreAllDismissalsToday() {
   await prisma.alertDismissal.deleteMany({
     where: { id: { in: toDelete.map((r) => r.id) } },
   });
-}
-
-export async function countDismissedAmong(
-  allAlerts: AppAlert[],
-  activeAlerts: AppAlert[],
-): Promise<number> {
-  return allAlerts.length - activeAlerts.length;
 }

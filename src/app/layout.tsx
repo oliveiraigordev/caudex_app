@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Fraunces, Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { themeInitScript } from "./theme-init-script";
+import { AuthSessionProvider } from "@/components/session-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -40,7 +41,7 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body className="min-h-full bg-[var(--background)] font-sans text-[var(--foreground)]">
-        {children}
+        <AuthSessionProvider>{children}</AuthSessionProvider>
       </body>
     </html>
   );

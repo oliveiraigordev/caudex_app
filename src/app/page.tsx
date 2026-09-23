@@ -7,6 +7,7 @@ import { WeatherPanel } from "@/components/weather-panel";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Bell, Plus } from "lucide-react";
+import { PushNotificationsSetup } from "@/components/push-notifications-setup";
 
 export default async function HomePage() {
   const {
@@ -31,6 +32,8 @@ export default async function HomePage() {
           .
         </p>
       </section>
+
+      <PushNotificationsSetup />
 
       <section className="grid gap-4 lg:grid-cols-5">
         <Card className="lg:col-span-2">

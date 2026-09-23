@@ -88,9 +88,8 @@ Limites de dias (defaults editáveis pelo usuário):
 
 Ordem de preferência para uso pessoal:
 
-1. **Telegram Bot** (grátis, push imediato no celular) — recomendado para alertas de chuva.
-2. **Web Push (PWA)** — sem app store; exige permissão no navegador.
-3. **E-mail** (Resend/etc.) — backup diário “resumo do dia”.
+1. **Web Push (navegador / PWA)** — principal no produto; no celular, adicionar à tela inicial (iOS) ou permitir notificações (Android).
+2. **E-mail** (Resend/etc.) — backup diário “resumo do dia”, se necessário no futuro.
 
 Nunca notificar spam: agrupar (“3 plantas: verificar rega”) e silenciar à noite.
 

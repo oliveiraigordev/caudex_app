@@ -21,8 +21,22 @@ model User {
   locations     CultivationLocation[]
   settings      UserSettings?
   alertDismissals AlertDismissal[]
+  pushSubscriptions PushSubscription[]
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+}
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
 }
 
 model Account {
@@ -184,6 +198,7 @@ model UserSettings {
   fertDaysSeedling     Int     @default(14)
   fertDaysAdult        Int     @default(30)
   notificationsEnabled Boolean @default(true)
+  lastPushNotifiedAt   DateTime?
 }
 
 model AlertDismissal {

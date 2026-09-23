@@ -4,6 +4,7 @@ export default auth((req) => {
   const { pathname } = req.nextUrl;
   const isAuthRoute =
     pathname.startsWith("/api/auth") ||
+    pathname.startsWith("/api/cron/") ||
     pathname.startsWith("/login") ||
     pathname.startsWith("/_next") ||
     pathname === "/favicon.ico";

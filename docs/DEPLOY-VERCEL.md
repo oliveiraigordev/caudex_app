@@ -46,7 +46,9 @@ Gere o client secret (JWT) e preencha `AUTH_APPLE_ID` / `AUTH_APPLE_SECRET`.
 
 ## 5. Blob (fotos)
 
-Storage → Blob → crie store → copie `BLOB_READ_WRITE_TOKEN` para o projeto.
+Storage → Blob → crie um store **público** (`--access public`) e ligue ao projeto **caudexia** (o Vercel define `BLOB_STORE_ID` e OIDC). Upload com `access: public` **não funciona** em store privado.
+
+Opcional: `BLOB_READ_WRITE_TOKEN` (em vez de só OIDC). Se o store for privado, defina `BLOB_STORE_ACCESS=private` e use URLs assinadas/proxy.
 
 ## 6. Domínio
 
